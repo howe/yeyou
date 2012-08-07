@@ -1,0 +1,238 @@
+<script type="text/javascript" src="http://www.yeyouqu.com/static/js/jquery-1.7.2.min.js"></script>
+
+<input type="hidden" name="trade" value="yes" />
+
+<input type="hidden" name="item_type" value="1" />
+
+<div class="exfm cl">
+
+	<div class="sinf sppoll z">
+
+		<dl>
+
+			<dt><span class="rq">*</span><label for="item_name">物品名称:</label></dt>
+
+			<dd><input type="text" name="item_name" id="item_name" class="px oinf" value="$trade[subject]" tabindex="1" /></dd>
+
+			<dt><span class="rq">*</span><label for="item_number">物品数量:</label></dt>
+
+			<dd>
+
+				<div class="spmf">
+
+					<em>
+
+						<input type="text" name="item_number" id="item_number" class="px" value="$trade[amount]" tabindex="1" />
+
+					</em>
+					<!--
+					<em>
+
+						<span class="ftid">
+
+							<select id="item_quality" class="ps" width="108" name="item_quality" tabindex="1">
+
+								<option value="1" {if $trade['quality'] == 1}selected="selected"{/if}>{lang trade_new}</option>
+
+								<option value="2" {if $trade['quality'] == 2}selected="selected"{/if}>{lang trade_old}</option>
+
+							</select>
+
+						</span>
+
+					</em>
+					-->
+				</div>
+
+			</dd>
+
+			<dt><label for="transport">交易方式:</label></dt>
+
+			<dd>
+
+				<span class="ftid">
+
+					<select name="transport" id="transport" width="108" change="$('logisticssetting').style.display = $('transport').value == 'virtual' ? 'none' : ''" class="ps">
+						<option value="seller" {if $trade['transport'] == 1}selected="selected"{/if}>淘宝游戏交易平台</option>
+
+					</select>
+
+				</span>
+
+			</dd>
+
+			<dt><span class="rq">*</span>物品价格:</dt>
+
+			<dd>
+
+				<div class="spmf mbm">
+
+					<em>
+
+						<input type="text" name="item_price" id="item_price" class="px" value="$trade[price]" tabindex="1" />
+
+						<label for="item_price">人民币(RMB)</label>
+
+					</em>
+				</div>
+
+			</dd>
+			<dt><span class="rq">*</span><label for="item_locus">交易链接:</label></dt>
+
+			<dd><input type="text" name="item_locus" id="item_locus" class="px oinf" value="$trade[locus]" tabindex="1" onblur="run(this)"/>
+				<label for="item_price"><strong><a target="_blank" class="red" href="http://game.taobao.com/sell/category_select.htm?from=yeyouqu" title="点此获取交易链接">获取链接<a></strong></label>
+			</dd>
+			
+	</div>
+
+	<div class="sadd z">
+
+		<dl class="cl">
+
+			
+
+			<dt><label for="item_expiration">{lang valid_before}:</label></dt>
+
+			<dd class="hasd">
+
+				<input type="text" name="item_expiration" id="item_expiration" class="px" onclick="showcalendar(event, this, false)" autocomplete="off" value="$trade[expiration]" tabindex="1" />
+
+			</dd>
+
+			<!--{if $allowpostimg}-->
+
+				<dt>物品图片:</dt>
+
+				<dd class="pns">
+
+					<button type="button" class="pn" onclick="uploadWindow(function (aid, url){tradeaid_upload(aid, url)})"><span><!--{if $tradeattach[attachment]}-->{lang update}<!--{else}-->{lang upload}<!--{/if}--></span></button>
+
+					<input type="hidden" name="tradeaid" id="tradeaid" {if $tradeattach[attachment]}value="$tradeattach[aid]" {/if}/>
+
+					<input type="hidden" name="tradeaid_url" id="tradeaid_url" />
+
+					<div id="tradeattach_image" class="ptn">
+
+					<!--{if $tradeattach[attachment]}-->
+
+						<a href="$tradeattach[url]/$tradeattach[attachment]" target="_blank"><img class="spimg" src="$tradeattach[url]/{if $tradeattach['thumb']}{eval echo getimgthumbname($tradeattach['attachment']);}{else}$tradeattach[attachment]{/if}" alt="" /></a>
+
+					<!--{/if}-->
+
+					</div>
+
+				</dd>
+
+			<!--{/if}-->
+
+			<!--{hook/post_trade_extra}-->
+
+		</dl>
+
+	</div>
+
+</div>
+
+
+
+<script type="text/javascript" reload="1">
+
+simulateSelect('item_quality');
+
+simulateSelect('paymethod');
+
+simulateSelect('transport');
+
+EXTRAFUNC['validator']['special'] = 'validateextra';
+
+function validateextra() {
+
+	if($('postform').item_name.value == '') {
+
+		showDialog('{lang post_goods_error_message_1}', 'alert', '', function () { $('postform').item_name.focus() });
+
+		return false;
+
+	}
+
+	if($('postform').item_number.value == '') {
+
+		showDialog('{lang post_goods_error_message_2}', 'alert', '', function () { $('postform').item_number.focus() });
+
+		return false;
+
+	}
+
+	if($('postform').item_price.value == '' && $('postform').item_credit.value == '') {
+
+		showDialog('{lang post_goods_error_message_3}', 'alert', '', function () { $('postform').item_price.focus() });
+
+		return false;
+
+	}
+
+	return true;
+
+}
+
+function tradeaid_upload(aid, url) {
+
+	$('tradeaid_url').value = url;
+
+	updatetradeattach(aid, url, '{$_G['setting']['attachurl']}forum');
+
+}
+
+</script>
+
+<!-- auto fill in -->
+
+<script>
+	
+	function isValidateUrl(url){
+		if(url==null){
+			return false;
+		}
+		return (url.match(/^http:\/\/game.taobao.com/i)==null ? false : true);
+	}
+	
+	function searchKeyWord(url) {
+		return url.match(/(\bitem_num\b)=(\w+)/g);
+	}
+	
+	function fetchKeyWordValue(keyWord) {
+		return keyWord.substr(keyWord.match(/\w+=/g)[0].length);
+	}
+	
+	function queryItemById(id){
+		$.ajax({
+			async : true,// required
+			type : 'post',
+			dataType : 'json',
+			timeout : 10000,
+			url : 'http://localhost:8080/yeyou/PageGameHelp/queryGoodsById?id='+id,
+			data : {
+				id : id
+			},
+			success : function(data) {
+				$('#item_name').val(data.name);
+				$('#item_number').val(data.number);
+				$('#item_price').val(data.price);
+				$('#tradeaid_url').val(data.picUrl);
+			}
+		});
+	}
+	
+	function run(o){
+		var tmp=o.value;
+		
+		if(isValidateUrl(tmp)){
+			tmp=searchKeyWord(tmp);
+			tmp=fetchKeyWordValue(tmp.toString());
+			
+			queryItemById(tmp);
+			$('#item_locus').val('http:\/\/game.taobao.com\/item.htm?item_num='+tmp);
+		}
+	}
+	
+</script>
